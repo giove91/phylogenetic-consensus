@@ -53,6 +53,19 @@ def all_trees(X):
             yield tuple(sorted(subtrees))
 
 
+def leaf_set(t):
+    """
+    Find leaf set of a phylogenetic tree.
+    """
+    if not isinstance(t, tuple):
+        return [t]
+    
+    res = []
+    for s in t:
+        res += leaf_set(s)
+    return sorted(res)
+
+
 def restriction(t, Y):
     """
     Restriction of the tree t to the leaf set Y.
@@ -72,6 +85,15 @@ def restriction(t, Y):
         return tuple(sorted(subtrees))
 
 
+def all_permutations(X):
+    """
+    Generate all permutations of X, as dictionaries.
+    """
+    X = list(X)
+    for permutation in itertools.permutations(X):
+        yield {X[i]: permutation[i] for i in xrange(len(X))}
+
+
 def apply_permutation(t, sigma):
     """
     Apply the permutation sigma on the leaves of t.
@@ -83,6 +105,27 @@ def apply_permutation(t, sigma):
     return tuple(sorted(apply_permutation(s, sigma) for s in t))
 
 
+NORMAL_TREES = {}
+
+def normalize_tree(t):
+    """
+    Find normal form of the given tree w.r.t. the symmetric group action.
+    The normal form is the smallest element of the orbit.
+    """
+    if t not in NORMAL_TREES:
+        # compute normal form
+        X = leaf_set(t)
+        normal_form = t
+        
+        for sigma in all_permutations(X):
+            normal_form = min(normal_form, apply_permutation(t, sigma))
+        
+        for sigma in all_permutations(X):
+            NORMAL_TREES[apply_permutation(t, sigma)] = normal_form
+    
+    return NORMAL_TREES[t]
+
+
 if __name__ == '__main__':
     X = range(1, 5)
     Y = [1,2,3]
@@ -91,6 +134,5 @@ if __name__ == '__main__':
     print len(X), sum(1 for t in all_trees(X))
     
     for t in all_trees(X):
-        print t, apply_permutation(t, sigma)
-
-
+        print t, normalize_tree(t)
+    
