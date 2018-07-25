@@ -11,7 +11,7 @@ from multiprocessing import Pool
 
 
 def powerset(X):
-    "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
+    "Generate all subsets of X."
     return itertools.chain.from_iterable(itertools.combinations(X, r) for r in range(len(X)+1))
 
 
@@ -43,22 +43,23 @@ def all_trees(X):
     """
     if len(X) == 1:
         yield X[0]
-        return
     
-    for p in set_partitions(X):
-        if len(p) == 1:
-            # trivial partition
-            continue
-        
-        for subtrees in itertools.product(*[all_trees(Y) for Y in p]):
-            yield tuple(sorted(subtrees))
+    else:
+        for p in set_partitions(X):
+            if len(p) == 1:
+                # trivial partition
+                continue
+            
+            for subtrees in itertools.product(*[all_trees(Y) for Y in p]):
+                yield tuple(sorted(subtrees))
 
 
 def leaf_set(t):
     """
-    Find leaf set of a phylogenetic tree.
+    Find leaf set of a phylogenetic tree (as a list).
     """
     if not isinstance(t, tuple):
+        # t is a leaf
         return [t]
     
     res = []
@@ -70,6 +71,7 @@ def leaf_set(t):
 def restriction(t, Y):
     """
     Restriction of the tree t to the leaf set Y.
+    Return None if Y is disjoint from the leaf set of t.
     """
     if not isinstance(t, tuple):
         # t is a leaf
@@ -89,6 +91,7 @@ def restriction(t, Y):
 def all_permutations(X):
     """
     Generate all permutations of X, as dictionaries.
+    For example, the permutation (1234) is given by {1: 2, 2: 3, 3: 4, 4: 1}.
     """
     X = list(X)
     for permutation in itertools.permutations(X):
@@ -107,7 +110,6 @@ def apply_permutation(t, sigma):
 
 
 NORMAL_TREES = {}
-
 def normalize_tree(t):
     """
     Find normal form of the given tree w.r.t. the symmetric group action.
@@ -128,7 +130,6 @@ def normalize_tree(t):
 
 
 NORMAL_TUPLES = {}
-
 def normalize_tuple(tup):
     """
     Find normal form of the given tuple of trees w.r.t. the diagonal symmetric group action.
@@ -153,9 +154,9 @@ def normalize_tuple(tup):
 
 def find_normal_tuples(t):
     """
-    Find normal forms for pairs and triples that begin with t.
+    Find normal forms for all pairs and triples that begin with t.
     """
-    print "Processing", t
+    print "Process", t
     normal_pairs = set()
     normal_triples = set()
     
@@ -181,19 +182,7 @@ def find_normal_forms(X, processes=1):
         normal_trees.add(normalize_tree(t))
     
     process_pool = Pool(processes=processes)
-    results = process_pool.map_async(find_normal_tuples, normal_trees).get(9999999)
-    
-    """
-    for t in normal_trees:
-        print "%d/%d" % (i, num_trees), t
-        i += 1
-        
-        for r in all_trees(X):
-            normal_pairs.add(normalize_tuple((t,r)))
-            
-            for s in all_trees(X):
-                normal_triples.add(normalize_tuple((t,r,s)))
-    """
+    results = process_pool.map_async(find_normal_tuples, normal_trees).get()
     
     for pairs, triples in results:
         normal_pairs |= pairs
