@@ -6,6 +6,7 @@ For example, the three rooted triples (phylogenetic binary trees on 3 leaves)
 on X = {1,2,3} are: (1,(2,3)), (2,(1,3)), (3,(1,2)).
 """
 
+import sys
 import itertools
 from multiprocessing import Pool
 
@@ -156,16 +157,19 @@ def find_normal_tuples(t):
     """
     Find normal forms for all pairs and triples that begin with t.
     """
-    print "Process", t
+    # print "Process", t
     normal_pairs = set()
     normal_triples = set()
     
+    X = leaf_set(t)
     for r in all_trees(X):
         normal_pairs.add(normalize_tuple((t,r)))
         
         for s in all_trees(X):
             normal_triples.add(normalize_tuple((t,r,s)))
     
+    # print "Finished", t
+    sys.stderr.write(".")
     return normal_pairs, normal_triples
 
 
@@ -181,8 +185,11 @@ def find_normal_forms(X, processes=1):
     for t in all_trees(X):
         normal_trees.add(normalize_tree(t))
     
-    process_pool = Pool(processes=processes)
-    results = process_pool.map_async(find_normal_tuples, normal_trees).get()
+    if processes == 1:
+        results = [find_normal_tuples(t) for t in normal_trees]
+    else:
+        process_pool = Pool(processes=processes)
+        results = process_pool.map_async(find_normal_tuples, sorted(normal_trees, key=lambda t: len(t))).get(9999999)
     
     for pairs, triples in results:
         normal_pairs |= pairs
@@ -200,7 +207,8 @@ if __name__ == '__main__':
     num_trees = sum(1 for t in all_trees(X))
     print len(X), num_trees
     
-    normal_trees, normal_pairs, normal_triples = find_normal_forms(X, 4)
+    normal_trees, normal_pairs, normal_triples = find_normal_forms(X, 1)
     
     print "There are %d trees, %d normal trees, %d normal pairs, and %d normal triples" % (num_trees, len(normal_trees), len(normal_pairs), len(normal_triples))
+    
     
