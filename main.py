@@ -55,17 +55,6 @@ if __name__ == '__main__':
         if possible:
             possible_meets.append(triple)
     
-    """
-    # remove the possible meets (t,r,s) for which (t,t,r) and (t,t,s) are not possible meets
-    possible_meets = set(possible_meets)
-    new_possible_meets = []
-    for (t,r,s) in possible_meets:
-        if normalize_tuple((t,t,r)) in possible_meets and normalize_tuple((t,t,s)) in possible_meets:
-            new_possible_meets.append((t,r,s))
-        else:
-            print "remove ", (t,r,s), "from possible meets!"
-    possible_meets = new_possible_meets
-    """
     
     print "There are %d possible meets" % len(possible_meets)
     
@@ -99,4 +88,77 @@ if __name__ == '__main__':
         for (t,r) in p for s in trees \
         if normalize_tuple((r,s)) in p
     ), "trans")
+    
+    
+    print "Add meet constraints"
+    
+    # r^s <= r
+    model.addConstrs((
+        p[normalize_tuple((t,r))] >= m[t,r,s] \
+        for (t,r,s) in possible_meets
+    ), "meet1")
+    
+    # r^s <= s
+    model.addConstrs((
+        p[normalize_tuple((t,s))] >= m[t,r,s] \
+        for (t,r,s) in possible_meets
+    ), "meet2")
+    
+    # t = r^s, u <= r, u <= s imply u <= t
+    # the triple (t,r,s) is in the list of possible meets
+    model.addConstrs((
+        m[t,r,s] + \
+        p[normalize_tuple((u,r))] + \
+        p[normalize_tuple((u,s))] - \
+        (p[normalize_tuple((u,t))] if normalize_tuple((u,t)) in p else 0) \
+        <= 2 
+        for (t,r,s) in possible_meets for u in trees \
+        if normalize_tuple((u,r)) in p and normalize_tuple((u,s)) in p
+    ), "meet3")
+    
+    
+    bottom_element = tuple(sorted(X))
+    print "Force bottom element", bottom_element
+    model.addConstrs((
+        m[normalize_tuple((bottom_element, bottom_element, t))] == 1 \
+        for t in trees if normalize_tuple((bottom_element, bottom_element, t)) in m
+    ), "bottom")
+    
+    
+    print "Force that every (normal) pair has a meet"
+    matching = {(r,s): set() for (r,s) in normal_pairs}
+    for (t,r,s) in possible_meets:
+        matching[normalize_tuple((r,s))].add((t,r,s))
+        if r != s:
+            matching[normalize_tuple((s,r))].add((t,r,s))
+    
+    for pair in matching:
+        print "pair", pair
+        print "force sum of", matching[pair]
+    
+    model.addConstrs((
+        sum(m[triple] for triple in matching[pair]) == 1 for pair in matching
+    ), "meetexists")
+    
+    
+    ### solve ###
+    kwargs = {
+        "Threads": args.threads,
+        "Presolve": 2, # aggressive presolve
+    }
+    
+    for (arg, val) in kwargs.iteritems():
+        model.setParam(arg, val)
+    
+    model.optimize()
+
+    print
+    if model.Status == GRB.INFEASIBLE:
+        print "There is no meet-semilattice structure for X =", X
+
+    else:
+        print "Found meet-semilattice structure for X = %r (normal pairs only):" % X
+        for (t,r), v in p.iteritems():
+            if v.x > 0.5:
+                print "%r <= %r" % (t,r)
 
