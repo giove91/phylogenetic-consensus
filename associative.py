@@ -7,7 +7,7 @@ from tree import *
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Find a meet-semilattice structure on the set of phylogenetic trees.')
+    parser = argparse.ArgumentParser(description='Find a meet-semilattice structure on the set of phylogenetic trees. Equivalently, find a regular consensus method that is associative and Pareto on rooted triples.')
     
     parser.add_argument('n', nargs='?', default=3, type=int, help='number of leaves')
     parser.add_argument('-t', '--threads', default=1, type=int, help='number of threads that can be used')
@@ -131,10 +131,6 @@ if __name__ == '__main__':
         matching[normalize_tuple((r,s))].add((t,r,s))
         if r != s:
             matching[normalize_tuple((s,r))].add((t,r,s))
-    
-    for pair in matching:
-        print "pair", pair
-        print "force sum of", matching[pair]
     
     model.addConstrs((
         sum(m[triple] for triple in matching[pair]) == 1 for pair in matching

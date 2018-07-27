@@ -69,6 +69,34 @@ def leaf_set(t):
     return sorted(res)
 
 
+CLUSTERS = {}
+def clusters(t):
+    """
+    Find the clusters of a phylogenetic tree (as a list of tuples).
+    """
+    if t not in CLUSTERS:
+        if not isinstance(t, tuple):
+            # t is a leaf
+            CLUSTERS[t] = [(t,)]
+        
+        else:
+            res = []
+            for s in t:
+                res += clusters(s)
+            res.append(tuple(leaf_set(t)))
+            CLUSTERS[t] = res
+    
+    return CLUSTERS[t]
+
+
+def compare(t, s):
+    """
+    Check if t <= s, in the sense that all the clusters of t are also clusters of s.
+    """
+    c = set(clusters(s))
+    return all(cluster in c for cluster in clusters(t))
+
+
 def restriction(t, Y):
     """
     Restriction of the tree t to the leaf set Y.
@@ -87,6 +115,17 @@ def restriction(t, Y):
         return subtrees[0]
     else:
         return tuple(sorted(subtrees))
+
+
+def is_binary(t):
+    """
+    Check if the tree is binary.
+    """
+    if not isinstance(t, tuple):
+        # t is a leaf
+        return True
+    
+    return len(t) == 2 and all(is_binary(s) for s in t)
 
 
 def all_permutations(X):
@@ -135,10 +174,18 @@ def normalize_tuple(tup):
     """
     Find normal form of the given tuple of trees w.r.t. the diagonal symmetric group action.
     For triples, we also allow exchanging the second and the third argument.
+    The leaf set is changed to [1, ..., n]
     """
+    X = leaf_set(tup[0])
+    Y = range(1, len(X)+1)
+    if X != Y:
+        # normalize range
+        sigma = {X[i]: Y[i] for i in xrange(len(X))}
+        tup = tuple(apply_permutation(t, sigma) for t in tup)
+        X = Y
+    
     if tup not in NORMAL_TUPLES:
         # compute normal form
-        X = leaf_set(tup[0])
         normal_form = tup
         orbit = [tuple(apply_permutation(t, sigma) for t in tup) for sigma in all_permutations(X)]
         
@@ -200,15 +247,19 @@ def find_normal_forms(X, processes=1):
 
 
 if __name__ == '__main__':
-    X = range(1, 6)
+    X = range(1, 5)
     Y = [1,2,3]
     sigma = {1: 2, 2: 3, 3: 4, 4: 1}
     
     num_trees = sum(1 for t in all_trees(X))
     print len(X), num_trees
     
-    normal_trees, normal_pairs, normal_triples = find_normal_forms(X, 1)
+    # normal_trees, normal_pairs, normal_triples = find_normal_forms(X, 1)
     
-    print "There are %d trees, %d normal trees, %d normal pairs, and %d normal triples" % (num_trees, len(normal_trees), len(normal_pairs), len(normal_triples))
+    # print "There are %d trees, %d normal trees, %d normal pairs, and %d normal triples" % (num_trees, len(normal_trees), len(normal_pairs), len(normal_triples))
+    
+    for t in all_trees(X):
+        for s in all_trees(X):
+            print t, s, compare(t,s), clusters(t)
     
     
