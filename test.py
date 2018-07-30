@@ -128,7 +128,54 @@ class TestTree(unittest.TestCase):
         self.assertEqual(restriction((1,(2,3,4)), [1,2,3]), (1,(2,3)))
         self.assertEqual(restriction((1,(2,3,(4,5))), [1,2,4,5]), (1,(2,(4,5))))
         self.assertEqual(restriction((1,(2,3,(4,5))), [1,2,3,4,5]), (1,(2,3,(4,5))))
+    
+    
+    def test_is_binary(self):
+        self.assertTrue(is_binary((1,2)))
+        self.assertTrue(is_binary((1,(2,3))))
+        self.assertTrue(is_binary((3,(1,2))))
+        self.assertTrue(is_binary(((1,2),(3,4))))
+        self.assertTrue(is_binary((1,(2,(3,(4,5))))))
+        
+        self.assertFalse(is_binary((1,2,3)))
+        self.assertFalse(is_binary(((1,2),(3,4,5))))
+        self.assertFalse(is_binary(((1,2),(3,4),5)))
+    
+    
+    def test_apply_permutation(self):
+        self.assertEqual(apply_permutation((1,(2,3)), {1: 3, 2: 2, 3: 1}), (3,(1,2)))
+        self.assertEqual(apply_permutation((1,2,3), {1: 3, 2: 2, 3: 1}), (1,2,3))
+        self.assertEqual(apply_permutation((1,2,(3,(4,5))), {1: 3, 2: 2, 3: 4, 4: 5, 5: 1}), (2,3,(4,(1,5))))
+        self.assertEqual(apply_permutation((1,2,(3,4,5)), {1: 1, 2: 2, 3: 7, 4: 8, 5: 9}), (1,2,(7,8,9)))
+    
+    
+    def test_normalize_tree(self):
+        for i in xrange(2):
+            self.assertEqual(normalize_tree((1,2,3)), (1,2,3))
+            self.assertEqual(normalize_tree((1,(2,3))), (1,(2,3)))
+            self.assertEqual(normalize_tree((3,(1,2))), (1,(2,3)))
+            self.assertEqual(normalize_tree((1,3,(2,4))), (1,2,(3,4)))
+            self.assertEqual(normalize_tree((3,(2,4,(1,5)))), (1,(2,3,(4,5))))
 
+        self.assertEqual(len(set(normalize_tree(t) for t in all_trees([1,2,3]))), 2)
+        self.assertEqual(len(set(normalize_tree(t) for t in all_trees([1,2,3,4]))), 5)
+        self.assertEqual(len(set(normalize_tree(t) for t in all_trees([1,2,3,4,5]))), 12)
+
+
+    def test_normalize_tuple(self):
+        for i in xrange(2):
+            self.assertEqual(normalize_tuple(
+                ((3,(1,2)), (2,(1,3)))
+            ),  ((1,(2,3)), (2,(1,3))))
+            
+            self.assertEqual(normalize_tuple(
+                ((1,2,3), (1,2,3), (1,2,3))
+            ),  ((1,2,3), (1,2,3), (1,2,3)))
+
+            self.assertEqual(normalize_tuple(
+                ((3,(1,2)), (2,(1,3)), (1,2,3))
+            ),  ((1,(2,3)), (1,2,3), (2,(1,3))))
+        
 
 if __name__ == '__main__':
     unittest.main()
