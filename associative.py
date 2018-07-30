@@ -150,10 +150,10 @@ if __name__ == '__main__':
 
     print
     if model.Status == GRB.INFEASIBLE:
-        print "There is no meet-semilattice structure for X =", X
+        print "There is no meet-semilattice structure for X = %r" % X
 
     else:
-        print "Found meet-semilattice structure for X = %r (normal pairs only):" % X
+        print "Found meet-semilattice structure for X = %r:" % X
         for (t,r), v in p.iteritems():
             if v.x > 0.5:
                 print "%r <= %r" % (t,r)

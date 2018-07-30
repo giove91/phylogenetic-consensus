@@ -117,7 +117,7 @@ if __name__ == '__main__':
 
     print
     if model.Status == GRB.INFEASIBLE:
-        print "There is no valid consensus method for X =", X
+        print "There is no valid consensus method for X = %r" % X
 
     else:
         print "Found consensus method for X = %r:" % X

@@ -204,7 +204,6 @@ def find_normal_tuples(t):
     """
     Find normal forms for all pairs and triples that begin with t.
     """
-    # print "Process", t
     normal_pairs = set()
     normal_triples = set()
     
@@ -215,8 +214,7 @@ def find_normal_tuples(t):
         for s in all_trees(X):
             normal_triples.add(normalize_tuple((t,r,s)))
     
-    # print "Finished", t
-    sys.stderr.write(".")
+    sys.stdout.write(".")
     return normal_pairs, normal_triples
 
 
@@ -245,21 +243,3 @@ def find_normal_forms(X, processes=1):
     return list(sorted(normal_trees)), list(sorted(normal_pairs)), list(sorted(normal_triples))
 
 
-
-if __name__ == '__main__':
-    X = range(1, 5)
-    Y = [1,2,3]
-    sigma = {1: 2, 2: 3, 3: 4, 4: 1}
-    
-    num_trees = sum(1 for t in all_trees(X))
-    print len(X), num_trees
-    
-    # normal_trees, normal_pairs, normal_triples = find_normal_forms(X, 1)
-    
-    # print "There are %d trees, %d normal trees, %d normal pairs, and %d normal triples" % (num_trees, len(normal_trees), len(normal_pairs), len(normal_triples))
-    
-    for t in all_trees(X):
-        for s in all_trees(X):
-            print t, s, compare(t,s), clusters(t)
-    
-    
