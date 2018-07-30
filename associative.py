@@ -58,7 +58,7 @@ if __name__ == '__main__':
     
     print "There are %d possible meets" % len(possible_meets)
     
-    # create optimization model
+    ### create optimization model ###
     model = Model('phylogenetictrees')
     
     print "Create variables"

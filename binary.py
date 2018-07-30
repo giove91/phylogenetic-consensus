@@ -70,7 +70,7 @@ if __name__ == '__main__':
     
     print "There are %d possible triples" % len(possible_triples)
     
-    # create optimization model
+    ### create optimization model ###
     model = Model('phylogenetictrees')
     
     print "Create variables"
@@ -78,7 +78,7 @@ if __name__ == '__main__':
     
     m = model.addVars(possible_triples, name="m", vtype=GRB.BINARY)
     
-    print "Add extension stability constraint on binary trees"
+    print "Add extension stability constraints on binary trees"
     extension_stability_constraints = []
     for (t, r, s) in possible_triples:
         Y = leaf_set(t)
@@ -124,7 +124,7 @@ if __name__ == '__main__':
         print
         for (t,r,s), v in m.iteritems():
             if v.x > 0.5:
-                print "%r ^ %r =\t%r" % (r,s,t)
+                print "%r ^ %r = %r" % (r,s,t)
     
 
 
