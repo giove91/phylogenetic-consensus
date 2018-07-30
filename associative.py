@@ -7,7 +7,7 @@ from tree import *
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Find a meet-semilattice structure on the set of phylogenetic trees. Equivalently, find a regular consensus method that is associative and Pareto on rooted triples.')
+    parser = argparse.ArgumentParser(description='Find a regular consensus method that is associative and Pareto on rooted triples.')
     
     parser.add_argument('n', nargs='?', default=3, type=int, help='number of leaves')
     parser.add_argument('-t', '--threads', default=1, type=int, help='number of threads that can be used')
