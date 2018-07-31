@@ -215,6 +215,7 @@ def find_normal_tuples(t):
             normal_triples.add(normalize_tuple((t,r,s)))
     
     sys.stdout.write(".")
+    sys.stdout.flush()
     return normal_pairs, normal_triples
 
 

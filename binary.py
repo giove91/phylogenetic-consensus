@@ -101,7 +101,7 @@ if __name__ == '__main__':
     
     model.addConstrs((
         sum(m[triple] for triple in matching[pair]) == 1 for pair in matching
-    ), "meetexists")
+    ), "consensusexists")
     
     
     ### solve ###

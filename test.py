@@ -156,10 +156,10 @@ class TestTree(unittest.TestCase):
             self.assertEqual(normalize_tree((3,(1,2))), (1,(2,3)))
             self.assertEqual(normalize_tree((1,3,(2,4))), (1,2,(3,4)))
             self.assertEqual(normalize_tree((3,(2,4,(1,5)))), (1,(2,3,(4,5))))
-
-        self.assertEqual(len(set(normalize_tree(t) for t in all_trees([1,2,3]))), 2)
-        self.assertEqual(len(set(normalize_tree(t) for t in all_trees([1,2,3,4]))), 5)
-        self.assertEqual(len(set(normalize_tree(t) for t in all_trees([1,2,3,4,5]))), 12)
+            
+            self.assertEqual(len(set(normalize_tree(t) for t in all_trees([1,2,3]))), 2)
+            self.assertEqual(len(set(normalize_tree(t) for t in all_trees([1,2,3,4]))), 5)
+            self.assertEqual(len(set(normalize_tree(t) for t in all_trees([1,2,3,4,5]))), 12)
 
 
     def test_normalize_tuple(self):
