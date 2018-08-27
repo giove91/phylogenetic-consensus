@@ -9,7 +9,7 @@ from tree import *
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Find a regular consensus method that satisfies extension stability on profiles of two binary trees.')
     
-    parser.add_argument('n', nargs='?', default=3, type=int, help='number of leaves')
+    parser.add_argument('n', nargs='?', default=3, type=int, choices=[3,4,5], help='number of leaves (between 3 and 5, default 3)')
     parser.add_argument('-t', '--threads', default=1, type=int, help='number of threads that can be used')
     args = parser.parse_args()
 
@@ -55,17 +55,7 @@ if __name__ == '__main__':
             # we are only interested in pairs of binary trees
             continue
         
-        # check Pareto property on rooted triples (for binary trees)
-        possible = True
-        for Z in itertools.combinations(Y, 3):
-            u = restriction(r, Z)
-            if len(u) < 3:  # u is not the bottom element
-                if restriction(s, Z) == u and restriction(t, Z) != u:
-                    possible = False
-                    break
-        
-        if possible:
-            possible_triples.append(triple)
+        possible_triples.append(triple)
     
     
     print "There are %d possible triples" % len(possible_triples)
@@ -83,7 +73,7 @@ if __name__ == '__main__':
     for (t, r, s) in possible_triples:
         Y = leaf_set(t)
         for Z in powerset(Y):
-            if len(Z) > 3 and len(Z) < len(Y):
+            if len(Z) >= 3 and len(Z) < len(Y):
                 for u in all_trees(Z):
                     if not compare(u, restriction(t, Z)):
                         second_triple = normalize_tuple((u, restriction(r, Z), restriction(s, Z)))
@@ -107,7 +97,6 @@ if __name__ == '__main__':
     ### solve ###
     kwargs = {
         "Threads": args.threads,
-        "Presolve": 2, # aggressive presolve
     }
     
     for (arg, val) in kwargs.iteritems():

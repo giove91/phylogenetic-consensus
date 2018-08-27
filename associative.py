@@ -9,7 +9,7 @@ from tree import *
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Find a regular consensus method that is associative and Pareto on rooted triples.')
     
-    parser.add_argument('n', nargs='?', default=3, type=int, help='number of leaves')
+    parser.add_argument('n', nargs='?', default=3, type=int, choices=[3,4,5], help='number of leaves (between 3 and 5, default 3)')
     parser.add_argument('-t', '--threads', default=1, type=int, help='number of threads that can be used')
     args = parser.parse_args()
 
@@ -140,7 +140,8 @@ if __name__ == '__main__':
     ### solve ###
     kwargs = {
         "Threads": args.threads,
-        "Presolve": 2, # aggressive presolve
+        "PoolSearchMode": 2,
+        "PoolSolutions": 2, # try to find 2 solutions
     }
     
     for (arg, val) in kwargs.iteritems():
@@ -157,4 +158,6 @@ if __name__ == '__main__':
         for (t,r), v in p.iteritems():
             if v.x > 0.5:
                 print "%r <= %r" % (t,r)
+        
+        print "Number of solutions found:", model.SolCount
 
