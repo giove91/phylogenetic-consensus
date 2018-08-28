@@ -117,14 +117,6 @@ if __name__ == '__main__':
     ), "meet3")
     
     
-    bottom_element = tuple(sorted(X))
-    print "Force bottom element", bottom_element
-    model.addConstrs((
-        m[normalize_tuple((bottom_element, bottom_element, t))] == 1 \
-        for t in trees if normalize_tuple((bottom_element, bottom_element, t)) in m
-    ), "bottom")
-    
-    
     print "Force that every (normal) pair has a meet"
     matching = {(r,s): set() for (r,s) in normal_pairs}
     for (t,r,s) in possible_meets:
@@ -151,13 +143,14 @@ if __name__ == '__main__':
 
     print
     if model.Status == GRB.INFEASIBLE:
-        print "There is no meet-semilattice structure for X = %r" % X
+        print "There is no valid consensus method for X = %r" % X
 
     else:
-        print "Found meet-semilattice structure for X = %r:" % X
+        print "Found consensus method for X = %r:" % X
         for (t,r), v in p.iteritems():
             if v.x > 0.5:
                 print "%r <= %r" % (t,r)
         
-        print "Number of solutions found:", model.SolCount
+        if model.SolCount == 1:
+            print "This solution is unique"
 
