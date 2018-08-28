@@ -28,7 +28,7 @@ Optional arguments:
                         number of threads that can be used
 ```
 
-### Associativity
+### Associative stability
 
 `python associative.py [-h] [-t THREADS] [n]`
 
