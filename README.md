@@ -11,7 +11,7 @@
 
 ### Extension stability on binary trees
 
-`python binary.py [-h] [-t THREADS] [n]`
+`python extension.py [-h] [-t THREADS] [n]`
 
 Find a regular consensus method that satisfies extension stability on profiles
 of two binary trees.
