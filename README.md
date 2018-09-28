@@ -8,6 +8,7 @@
 
 ## Usage
 
+For n=5 leaves, both programs need around 8 Gigabytes of RAM.
 
 ### Extension stability on binary trees
 
